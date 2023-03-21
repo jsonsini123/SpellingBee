@@ -63,8 +63,8 @@ public class SpellingBee {
         words.add(word);
     }
     public void sort() {
-        // Call the mergesort function on the words list
-        mergeSort(words, 0, words.size() - 1);
+        // Call the mergesort function on the words list and set it equal to words
+        words = mergeSort(words, 0, words.size() - 1);
     }
     private static ArrayList<String> mergeSort(ArrayList<String> arr, int low, int high) {
         // Base case: if reach one word stop the recursion
