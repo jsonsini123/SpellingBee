@@ -22,7 +22,7 @@ import java.util.Scanner;
  * It utilizes recursion to generate the strings, mergesort to sort them, and
  * binary search to find them in a dictionary.
  *
- * @author Zach Blick, [ADD YOUR NAME HERE]
+ * @author Zach Blick, Jake Sonsini
  *
  * Written on March 5, 2023 for CS2 @ Menlo School
  *
@@ -44,13 +44,74 @@ public class SpellingBee {
     //  Store them all in the ArrayList words. Do this by calling ANOTHER method
     //  that will find the substrings recursively.
     public void generate() {
+        // Calls the makeWords recursion method
+        makeWords("", letters);
         // YOUR CODE HERE — Call your recursive method!
     }
-
-    // TODO: Apply mergesort to sort all words. Do this by calling ANOTHER method
-    //  that will find the substrings recursively.
+    public void makeWords(String word, String letters){
+        // Base case checks if there are any letters left
+        if (letters.equals("")){
+            words.add(word);
+            return;
+        }
+        // Call the method recursively by the amount of letters present
+        for (int i = 0; i < letters.length(); i++){
+            // Using the offset of letters (i) change what characters become the word
+            makeWords((word + letters.substring(i, i + 1)), (letters.substring(0, i) + letters.substring(i + 1)));
+        }
+        // Add the altered word
+        words.add(word);
+    }
     public void sort() {
-        // YOUR CODE HERE
+        // Call the mergesort function on the words list
+        mergeSort(words, 0, words.size() - 1);
+    }
+    private static ArrayList<String> mergeSort(ArrayList<String> arr, int low, int high) {
+        // Base case: if reach one word stop the recursion
+        if (high - low == 0) {
+            ArrayList<String> newArr = new ArrayList<String>();
+            newArr.add(arr.get(low));
+            return newArr;
+        }
+        // Create the medium variable that splits the array
+        int med = (high + low) / 2;
+        // Call the method with the left side cut and right side cut
+        ArrayList<String> arr1 = mergeSort(arr, low, med);
+        ArrayList<String> arr2 = mergeSort(arr, med + 1, high);
+        // Merge both arrays
+        return merge(arr1, arr2);
+    }
+
+    public static ArrayList<String> merge(ArrayList<String> arr1, ArrayList<String> arr2){
+        // Shift variables hold the location of each array
+        int oneShift = 0;
+        int twoShift = 0;
+        // finalArr holds the final values
+        ArrayList<String> finalArr = new ArrayList<String>();
+        // Run the loop until it reaches the end of either array
+        while(oneShift < arr1.size() && twoShift < arr2.size()){
+            // Compare to see which is in order then add to final array and change shift value
+            if (arr1.get(oneShift).compareTo(arr2.get(twoShift)) <= 0){
+                finalArr.add(arr1.get(oneShift));
+                oneShift++;
+            }
+            else{
+                finalArr.add(arr2.get(twoShift));
+                twoShift++;
+            }
+
+        }
+        // After one shift finishes the array, add the rest of the other array to finalArr
+        while (twoShift < arr2.size()){
+            finalArr.add(arr2.get(twoShift));
+            twoShift++;
+        }
+        while (oneShift < arr1.size()){
+            finalArr.add(arr1.get(oneShift));
+            oneShift++;
+        }
+        // Returns the finish product
+        return finalArr;
     }
 
     // Removes duplicates from the sorted list.
@@ -65,12 +126,39 @@ public class SpellingBee {
         }
     }
 
-    // TODO: For each word in words, use binary search to see if it is in the dictionary.
-    //  If it is not in the dictionary, remove it from words.
     public void checkWords() {
-        // YOUR CODE HERE
+        // Check each word
+        for (int i = 0; i < words.size(); i++){
+            // Call binary search
+            if (!binarySearch(words.get(i))){
+                words.remove(i);
+                i--;
+            }
+        }
     }
-
+    public static boolean binarySearch(String word){
+        // Create high and low variables
+        int high = DICTIONARY_SIZE - 1;
+        int low = 0;
+        // While the dictionary has more than one word to compare to repeat
+        while (high >= low){
+            // Make the mid variable
+            int mid = (low + high) / 2;
+            // If the word is less than, split the array the other side
+            if (word.compareTo(DICTIONARY[mid]) < 0){
+                high = mid - 1;
+            }
+            // If there is a match return true
+            else if (word.equals(DICTIONARY[mid])){
+                return true;
+            }
+            // If the word is greater than go to the lower side of array
+            else{
+                low = mid + 1;
+            }
+        }
+        return false;
+    }
     // Prints all valid words to wordList.txt
     public void printWords() throws IOException {
         File wordFile = new File("Resources/wordList.txt");
